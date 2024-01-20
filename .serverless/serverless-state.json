@@ -175,7 +175,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/nest-serverless-lambda-demo/dev/1705275273514-2024-01-14T23:34:33.514Z/nest-serverless-lambda-demo.zip"
+                "S3Key": "serverless/nest-serverless-lambda-demo/dev/1705714242286-2024-01-20T01:30:42.286Z/nest-serverless-lambda-demo.zip"
               },
               "Handler": "src/lambda.handler",
               "Runtime": "nodejs20.x",
@@ -193,14 +193,14 @@
               "MainLogGroup"
             ]
           },
-          "MainLambdaVersionpS09sfrSRRR4e2BmqOJFjLIrFELmSRqNgMGXfeDWvA": {
+          "MainLambdaVersionFUpk1LTJw8jAm0reY8KLbMwD4KVoi1wJT2j4rr2RM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "MainLambdaFunction"
               },
-              "CodeSha256": "Kuy3XeapgiqM+fwzfndYv60eRqJbYZXu2eMeIwP7gUg="
+              "CodeSha256": "ohttRLbD65El/XDHhclMeZB5pFjLBuyl9kKSC7poqto="
             }
           },
           "ApiGatewayRestApi": {
@@ -276,7 +276,7 @@
               "MainLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1705275098445": {
+          "ApiGatewayDeployment1705714220706": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -338,7 +338,7 @@
           "MainLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MainLambdaVersionpS09sfrSRRR4e2BmqOJFjLIrFELmSRqNgMGXfeDWvA"
+              "Ref": "MainLambdaVersionFUpk1LTJw8jAm0reY8KLbMwD4KVoi1wJT2j4rr2RM"
             },
             "Export": {
               "Name": "sls-nest-serverless-lambda-demo-dev-MainLambdaFunctionQualifiedArn"
@@ -486,7 +486,7 @@
         "timeout": 6,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "MainLambdaVersionpS09sfrSRRR4e2BmqOJFjLIrFELmSRqNgMGXfeDWvA"
+        "versionLogicalId": "MainLambdaVersionFUpk1LTJw8jAm0reY8KLbMwD4KVoi1wJT2j4rr2RM"
       }
     },
     "configValidationMode": "warn",
@@ -505,10 +505,10 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "D:\\projects\\Hiro\\lambda\\lambda\\.build\\.serverless\\nest-serverless-lambda-demo.zip"
+    "artifact": "/home/prometheus/apps/gesttiona/lambda-gest/.build/.serverless/nest-serverless-lambda-demo.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/nest-serverless-lambda-demo/dev/1705275273514-2024-01-14T23:34:33.514Z",
+    "artifactDirectoryName": "serverless/nest-serverless-lambda-demo/dev/1705714242286-2024-01-20T01:30:42.286Z",
     "artifact": "nest-serverless-lambda-demo.zip"
   }
 }

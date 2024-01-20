@@ -19,9 +19,25 @@ const marks_repository_1 = require("./marks.repository");
 const mark_dto_1 = require("./dto/mark.dto");
 const class_transformer_1 = require("class-transformer");
 const mark_model_1 = require("./mark.model");
+const abstract_api_service_1 = require("../@third-party-services/abstract-api/abstract-api.service");
 let MarksService = class MarksService {
-    constructor(markRepository) {
+    constructor(markRepository, abstractApiService) {
         this.markRepository = markRepository;
+        this.abstractApiService = abstractApiService;
+    }
+    async executeMark(createMarkDto, user) {
+        const errors = [];
+        try {
+            return user;
+            const serviceTime = await this.abstractApiService.getTime('America/Lima');
+            console.log(serviceTime);
+        }
+        catch (ex) {
+            console.log(ex);
+        }
+        return true;
+    }
+    async executeCheckpointMark(createMarkDto, user) {
     }
     async find(query) {
         try {
@@ -49,6 +65,7 @@ exports.MarksService = MarksService;
 exports.MarksService = MarksService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(mark_model_1.Mark)),
-    __metadata("design:paramtypes", [marks_repository_1.MarkRepository])
+    __metadata("design:paramtypes", [marks_repository_1.MarkRepository,
+        abstract_api_service_1.AbstractApiService])
 ], MarksService);
 //# sourceMappingURL=marks.service.js.map

@@ -2,6 +2,12 @@ interface IAppConfig {
   port: number;
   redis: IRedis;
   jwt: IJwtConfig;
+  abstract: IAbstractApi;
+}
+
+interface IAbstractApi {
+  endpoint: string;
+  apiKey: string;
 }
 
 interface IJwtConfig {
@@ -14,4 +20,4 @@ interface IRedis {
   host: string;
 }
 
-export { IAppConfig, IRedis, IJwtConfig };
+export { IAppConfig, IRedis, IJwtConfig, IAbstractApi };

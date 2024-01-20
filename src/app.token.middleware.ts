@@ -1,26 +1,28 @@
+import { CustomRequest } from '@common/types/express';
 import {
   HttpException,
   HttpStatus,
   Injectable,
   NestMiddleware,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
+import { Response, NextFunction } from 'express';
+import { verify } from 'jsonwebtoken';
+import { IJwtConfig } from './config/configuration.interface';
 
 @Injectable()
 export class DecodeJwtMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction) {
+  constructor(private readonly configService: ConfigService) {}
+
+  use(req: CustomRequest, res: Response, next: NextFunction) {
+    const { privateKey } = this.configService.get<IJwtConfig>('jwt');
+
     const token = req.headers.authorization;
     if (token) {
       try {
-        const secretOrPublicKey =
-          'f4lCWCjLeS12XdjqXW3x4IkhgRQkk08iNeEbEgF4pK8EaPjQqOqCZgABrlc8zxBA';
-
-        const decoded = jwt.verify(token, secretOrPublicKey);
-        req['user'] = decoded;
-        console.log(req['user']);
-        next();
-        return true;
+        const decoded = verify(token, privateKey);
+        req.user = decoded;
+        return next();
       } catch (error) {
         console.error('Error decoding token:', error);
       }

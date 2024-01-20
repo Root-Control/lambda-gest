@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const marks_service_1 = require("./marks.service");
 const swagger_1 = require("@nestjs/swagger");
 const mark_dto_1 = require("./dto/mark.dto");
+const create_mark_dto_1 = require("./dto/create-mark.dto");
 let MarkController = class MarkController {
     constructor(marksService) {
         this.marksService = marksService;
@@ -24,8 +25,13 @@ let MarkController = class MarkController {
     findAll(query) {
         return this.marksService.find(query);
     }
-    mark() {
-        return { success: true };
+    mark(request, createMarkDto) {
+        if (createMarkDto.mark_type !== MarkTypes.CHECKPOINT) {
+            return this.marksService.executeMark(createMarkDto, request.user);
+        }
+        else {
+            return this.marksService.executeCheckpointMark(createMarkDto, request.user);
+        }
     }
     findById(id) {
         console.log(1);
@@ -46,6 +52,20 @@ __decorate([
     __metadata("design:paramtypes", [mark_dto_1.MarkQueryDto]),
     __metadata("design:returntype", Promise)
 ], MarkController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Post)('mark'),
+    (0, swagger_1.ApiOperation)({ summary: 'Perform Mark' }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'List of marks',
+        type: [mark_dto_1.MarkDto],
+    }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_mark_dto_1.CreateMarkDto]),
+    __metadata("design:returntype", void 0)
+], MarkController.prototype, "mark", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get mark by Id' }),
