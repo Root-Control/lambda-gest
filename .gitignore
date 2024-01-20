@@ -8,6 +8,10 @@
 .pnp.js
 .env
 
+.build
+.serverless
+dist
+
 # testing
 /coverage
 
