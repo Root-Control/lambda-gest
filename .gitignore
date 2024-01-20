@@ -6,11 +6,11 @@
 /.pnp
 /deployable-google-functions
 .pnp.js
-.env
 
-.build
-.serverless
-dist
+.env
+/.build
+/.serverless
+/dist
 
 # testing
 /coverage
