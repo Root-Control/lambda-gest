@@ -6,6 +6,7 @@
 /.pnp
 /deployable-google-functions
 .pnp.js
+.env
 
 # testing
 /coverage
