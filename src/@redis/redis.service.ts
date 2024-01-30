@@ -13,7 +13,8 @@ export class RedisService {
     this.redis = _redis;
   }
 
-  set(key: string, value: string | number) {
+  set(key: string, value: string | number | any) {
+    value = typeof value === 'object' ? JSON.stringify(value) : value;
     this.redis.set(key, value);
   }
 

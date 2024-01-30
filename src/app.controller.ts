@@ -25,16 +25,15 @@ export class AppController {
   }
 
   @Post('redis-set')
-  redisSet(@Body() body: { key: string; value: string }) {
+  redisSet(
+    @Body() body: { key: string; value: string | { [key: string]: any } },
+  ) {
     this.redisService.set(body.key, body.value);
     return 'Setted';
   }
 
   @Get('redis-get')
   async redisGet(@Query('key') key: string) {
-    console.log(key);
-    const res = await this.redisService.get(key);
-    console.log(res);
     return this.redisService.get(key);
   }
 }

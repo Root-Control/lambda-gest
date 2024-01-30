@@ -1,41 +1,50 @@
 import {
-  DateField,
+  BooleanField,
   NumberField,
+  NumberFieldOptional,
   StringField,
-  StringFieldOptional,
 } from '../../../@common/decorators/field.decorators';
 
-export class CreateMarkDto {
-  @NumberField()
-  timeOffline: number;
-
-  @DateField()
-  date: Date;
-
+export class RequestMarkDto {
   @StringField()
   time: string;
 
-  @StringField()
-  mark_type: string;
+  @BooleanField()
+  isValid: boolean;
+
+  @StringField({ each: true })
+  errors: string[];
 
   @StringField()
-  img: string;
-
-  @NumberField()
-  location: number;
+  device_time: string;
 
   @StringField()
-  status_location: string;
+  service_time: string;
 
-  @DateField()
-  realDate: string;
+  @BooleanField()
+  user_service: boolean;
 
-  @StringFieldOptional({ nullable: true })
+  @BooleanField()
+  time_service_alert: boolean;
+
+  @StringField()
   latitude: string;
 
-  @StringFieldOptional({ nullable: true })
+  @StringField()
   longitude: string;
 
-  @StringFieldOptional({ nullable: true, minLength: 0 })
-  photo: string;
+  @NumberField()
+  mark_type_id: number;
+
+  @NumberField()
+  location_id: number;
+
+  @NumberField()
+  location_status_id: number;
+
+  @NumberField()
+  date: string;
+
+  @NumberFieldOptional()
+  management_center_id?: number;
 }

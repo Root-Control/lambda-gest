@@ -21,20 +21,31 @@ const class_transformer_1 = require("class-transformer");
 const mark_model_1 = require("./mark.model");
 const abstract_api_service_1 = require("../@third-party-services/abstract-api/abstract-api.service");
 const mark_validator_1 = require("./mark.validator");
+const redis_service_1 = require("src/@redis/redis.service");
+const moment = require("moment");
 let MarksService = class MarksService {
-    constructor(markRepository, abstractApiService) {
+    constructor(markRepository, abstractApiService, redisService) {
         this.markRepository = markRepository;
         this.abstractApiService = abstractApiService;
+        this.redisService = redisService;
     }
     async executeMark(createMarkDto, user) {
-        const markValidator = new mark_validator_1.MarkValidator();
+        console.log(user);
+        const { date } = createMarkDto;
+        const formattedDate = moment(date).format('YYYY-MM-DD');
+        const workerDayPattern = `${formattedDate}-${user.id}-${user.currentTeam.id}`;
+        const workerDayKey = `${workerDayPattern}-${createMarkDto.mark_type}`;
+        const workerDayJustification = `${workerDayPattern}-justification`;
+        const markValidator = new mark_validator_1.MarkValidator(user, date);
+        const workerDayExists = await this.redisService.get(workerDayKey);
+        const workerDayJustificationExists = await this.redisService.get(workerDayJustification);
         try {
             markValidator
-                .isValidUser(user)
-                .isValidContract(user)
-                .workerDayexists()
+                .isValidUser()
+                .isValidContract()
+                .workerDayexists(workerDayExists)
                 .verifyUserShift()
-                .haveJustifiedAssistance();
+                .haveJustifiedAssistance(workerDayJustificationExists);
             const { errors } = markValidator;
             console.log(createMarkDto);
             console.log(user);
@@ -76,6 +87,7 @@ exports.MarksService = MarksService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(mark_model_1.Mark)),
     __metadata("design:paramtypes", [marks_repository_1.MarkRepository,
-        abstract_api_service_1.AbstractApiService])
+        abstract_api_service_1.AbstractApiService,
+        redis_service_1.RedisService])
 ], MarksService);
 //# sourceMappingURL=marks.service.js.map

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateMarkDto = void 0;
+const enums_1 = require("@common/types/enums");
 const field_decorators_1 = require("../../../@common/decorators/field.decorators");
 class CreateMarkDto {
 }
@@ -31,6 +32,10 @@ __decorate([
     __metadata("design:type", String)
 ], CreateMarkDto.prototype, "mark_type", void 0);
 __decorate([
+    (0, field_decorators_1.StringFieldOptional)(),
+    __metadata("design:type", String)
+], CreateMarkDto.prototype, "shift", void 0);
+__decorate([
     (0, field_decorators_1.StringField)(),
     __metadata("design:type", String)
 ], CreateMarkDto.prototype, "img", void 0);
@@ -39,7 +44,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateMarkDto.prototype, "location", void 0);
 __decorate([
-    (0, field_decorators_1.StringField)(),
+    (0, field_decorators_1.EnumField)(() => enums_1.Statuslocations),
     __metadata("design:type", String)
 ], CreateMarkDto.prototype, "status_location", void 0);
 __decorate([
@@ -58,4 +63,12 @@ __decorate([
     (0, field_decorators_1.StringFieldOptional)({ nullable: true, minLength: 0 }),
     __metadata("design:type", String)
 ], CreateMarkDto.prototype, "photo", void 0);
+__decorate([
+    (0, field_decorators_1.NumberFieldOptional)({ nullable: true }),
+    __metadata("design:type", Number)
+], CreateMarkDto.prototype, "markTypeId", void 0);
+__decorate([
+    (0, field_decorators_1.NumberFieldOptional)({ nullable: true }),
+    __metadata("design:type", Number)
+], CreateMarkDto.prototype, "locationId", void 0);
 //# sourceMappingURL=create-mark.dto.js.map

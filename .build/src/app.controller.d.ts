@@ -17,7 +17,9 @@ export declare class AppController {
     getTimezones(): string[];
     redisSet(body: {
         key: string;
-        value: string;
+        value: string | {
+            [key: string]: any;
+        };
     }): string;
     redisGet(key: string): Promise<unknown>;
 }

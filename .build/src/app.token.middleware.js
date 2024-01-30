@@ -13,17 +13,27 @@ exports.DecodeJwtMiddleware = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const jsonwebtoken_1 = require("jsonwebtoken");
+const redis_service_1 = require("./@redis/redis.service");
 let DecodeJwtMiddleware = class DecodeJwtMiddleware {
-    constructor(configService) {
+    constructor(configService, redisService) {
         this.configService = configService;
+        this.redisService = redisService;
     }
-    use(req, res, next) {
+    async use(req, res, next) {
         const { privateKey } = this.configService.get('jwt');
-        const token = req.headers.authorization;
+        const [, token] = req.headers.authorization.split(' ');
         if (token) {
             try {
-                const decoded = (0, jsonwebtoken_1.verify)(token, privateKey);
-                req.user = decoded;
+                const { userId } = (0, jsonwebtoken_1.verify)(token, privateKey);
+                const details = await this.redisService.get(`user-${userId}`);
+                const { user, currentTeam, background, subcompanies } = details;
+                req.user = {
+                    ...user,
+                    currentTeam,
+                    background,
+                    subcompanies,
+                };
+                console.log(req.user);
                 return next();
             }
             catch (error) {
@@ -39,6 +49,7 @@ let DecodeJwtMiddleware = class DecodeJwtMiddleware {
 exports.DecodeJwtMiddleware = DecodeJwtMiddleware;
 exports.DecodeJwtMiddleware = DecodeJwtMiddleware = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService])
+    __metadata("design:paramtypes", [config_1.ConfigService,
+        redis_service_1.RedisService])
 ], DecodeJwtMiddleware);
 //# sourceMappingURL=app.token.middleware.js.map

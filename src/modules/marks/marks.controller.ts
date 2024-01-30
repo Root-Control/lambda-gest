@@ -12,7 +12,7 @@ import { MarksService } from './marks.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MarkDto, MarkQueryDto } from './dto/mark.dto';
 import { CustomRequest } from '@common/types/express';
-import { CreateMarkDto } from './dto/create-mark.dto';
+import { RequestMarkDto } from './dto/request-mark.dto';
 import { MarkTypes } from '../../@common/gesttiona-constants/enums';
 
 @ApiTags('Marks')
@@ -40,7 +40,7 @@ export class MarkController {
   })
   mark(
     @Request() request: CustomRequest,
-    @Body() createMarkDto: CreateMarkDto,
+    @Body() createMarkDto: RequestMarkDto,
   ) {
     if (createMarkDto.mark_type !== MarkTypes.CHECKPOINT) {
       return this.marksService.executeMark(createMarkDto, request.user);
@@ -60,7 +60,6 @@ export class MarkController {
     type: MarkDto,
   })
   findById(@Param('id') id: number): Promise<MarkDto> {
-    console.log(1);
     return this.marksService.findById(id);
   }
 }

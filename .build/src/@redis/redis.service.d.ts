@@ -2,7 +2,7 @@ import Redis from 'ioredis';
 export declare class RedisService {
     redis: Redis;
     constructor(_redis: Redis);
-    set(key: string, value: string | number): void;
+    set(key: string, value: string | number | any): void;
     get<T>(key: string): Promise<T>;
     setMultiple(keyValuePairs: {
         key: string;

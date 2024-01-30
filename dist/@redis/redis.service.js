@@ -22,6 +22,7 @@ let RedisService = class RedisService {
         this.redis = _redis;
     }
     set(key, value) {
+        value = typeof value === 'object' ? JSON.stringify(value) : value;
         this.redis.set(key, value);
     }
     get(key) {

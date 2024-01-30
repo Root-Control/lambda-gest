@@ -5,3 +5,4 @@ declare enum MarkTypes {
     END = "end",
     CHECKPOINT = "checkpoint"
 }
+export { MarkTypes };

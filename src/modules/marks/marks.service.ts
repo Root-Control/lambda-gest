@@ -7,30 +7,101 @@ import { FindManyOptions } from 'typeorm';
 import { Mark } from './mark.model';
 import { User } from '@common/types/express';
 import { AbstractApiService } from '../@third-party-services/abstract-api/abstract-api.service';
-import { CreateMarkDto } from './dto/create-mark.dto';
+import { RequestMarkDto } from './dto/request-mark.dto';
 import { MarkValidator } from './mark.validator';
-
+import { RedisService } from 'src/@redis/redis.service';
+import * as moment from 'moment';
+import {
+  RedisLocation,
+  RedisLocationStatus,
+  RedisMarkType,
+  RedisShift,
+} from '@common/global-types/types';
+import { Statuslocations } from '@common/types/enums';
 @Injectable()
 export class MarksService {
   constructor(
     @InjectRepository(Mark)
     private readonly markRepository: MarkRepository,
     private readonly abstractApiService: AbstractApiService,
+    private readonly redisService: RedisService,
   ) {}
 
-  async executeMark(createMarkDto: CreateMarkDto, user: User) {
-    const markValidator = new MarkValidator(user);
+  /**
+   * 
+   * @param createMarkDto TODO, WORKERDAY
+   * @param user 
+   * @returns 
+   */
+  async executeMark(createMarkDto: RequestMarkDto, user: User) {
+    const { date } = createMarkDto;
+    const formattedDate = moment(date).format('YYYY-MM-DD');
+
+    const locationKey = `location_${createMarkDto.location}`;
+
+    const markTypeKey = `mark_type_${createMarkDto.mark_type}`;
+
+    const workerDayPattern = `${formattedDate}_${user.id}_${user.currentTeam.id}`;
+    const workerDayKey = `${workerDayPattern}_${createMarkDto.mark_type}`;
+    const workerDayJustification = `${workerDayPattern}_justification`;
+
+    const shiftPattern = `shift`;
+    const shiftUserKey = `${shiftPattern}_${user.currentTeam.id}_${user.id}`;
+
+    const markValidator = new MarkValidator(user, date);
+
+    const workerDayExists = await this.redisService.get<boolean>(workerDayKey);
+    const workerDayJustificationExists = await this.redisService.get<boolean>(
+      workerDayJustification,
+    );
+
+    let shift: RedisShift = null;
+    const markType = await this.redisService.get<RedisMarkType>(markTypeKey);
+
+    if (createMarkDto.shift) {
+      const shiftKey = `${shiftPattern}_${createMarkDto.shift}`;
+      shift = await this.redisService.get<RedisShift>(shiftKey);
+    } else {
+      shift = await this.redisService.get<RedisShift>(shiftUserKey);
+    }
+
+    let locationStatus: RedisLocationStatus = null;
+
+    switch (createMarkDto.status_location) {
+      case Statuslocations.NO_GPS:
+        locationStatus = await this.redisService.get<RedisLocationStatus>(
+          `mark_location_status_gps_disabled`,
+        );
+        break;
+      case Statuslocations.NOT_FOUND:
+        locationStatus = await this.redisService.get<RedisLocationStatus>(
+          `mark_location_status_outside_allowed_area`,
+        );
+        break;
+      case Statuslocations.FOUND:
+      case Statuslocations.FOUND_PLUS:
+        locationStatus = await this.redisService.get<RedisLocationStatus>(
+          `mark_location_status_ok`,
+        );
+        break;
+    }
+
+    const location = await this.redisService.get<RedisLocation>(locationKey);
+
+    console.log(location);
+    console.log(locationStatus);
+    console.log(markType);
+    console.log(shift);
+
     try {
       markValidator
         .isValidUser()
         .isValidContract()
-        .workerDayexists()
-        .verifyUserShift()
-        .haveJustifiedAssistance();
+        .workerDayexists(workerDayExists)
+        .verifyUserShift(shift)
+        .haveJustifiedAssistance(workerDayJustificationExists);
 
       const { errors } = markValidator;
-      console.log(createMarkDto);
-      console.log(user);
       console.log(errors);
 
       const serviceTime = await this.abstractApiService.getTime('America/Lima');
@@ -57,7 +128,7 @@ export class MarksService {
   }
 
 
-  async executeCheckpointMark(createMarkDto: CreateMarkDto, user: User) {
+  async executeCheckpointMark(createMarkDto: RequestMarkDto, user: User) {
 
   }
 

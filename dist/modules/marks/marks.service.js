@@ -20,15 +20,65 @@ const mark_dto_1 = require("./dto/mark.dto");
 const class_transformer_1 = require("class-transformer");
 const mark_model_1 = require("./mark.model");
 const abstract_api_service_1 = require("../@third-party-services/abstract-api/abstract-api.service");
+const mark_validator_1 = require("./mark.validator");
+const redis_service_1 = require("../../@redis/redis.service");
+const moment = require("moment");
+const enums_1 = require("../../@common/types/enums");
 let MarksService = class MarksService {
-    constructor(markRepository, abstractApiService) {
+    constructor(markRepository, abstractApiService, redisService) {
         this.markRepository = markRepository;
         this.abstractApiService = abstractApiService;
+        this.redisService = redisService;
     }
     async executeMark(createMarkDto, user) {
-        const errors = [];
+        const { date } = createMarkDto;
+        const formattedDate = moment(date).format('YYYY-MM-DD');
+        const locationKey = `location_${createMarkDto.location}`;
+        const markTypeKey = `mark_type_${createMarkDto.mark_type}`;
+        const workerDayPattern = `${formattedDate}_${user.id}_${user.currentTeam.id}`;
+        const workerDayKey = `${workerDayPattern}_${createMarkDto.mark_type}`;
+        const workerDayJustification = `${workerDayPattern}_justification`;
+        const shiftPattern = `shift`;
+        const shiftUserKey = `${shiftPattern}_${user.currentTeam.id}_${user.id}`;
+        const markValidator = new mark_validator_1.MarkValidator(user, date);
+        const workerDayExists = await this.redisService.get(workerDayKey);
+        const workerDayJustificationExists = await this.redisService.get(workerDayJustification);
+        let shift = null;
+        const markType = await this.redisService.get(markTypeKey);
+        if (createMarkDto.shift) {
+            const shiftKey = `${shiftPattern}_${createMarkDto.shift}`;
+            shift = await this.redisService.get(shiftKey);
+        }
+        else {
+            shift = await this.redisService.get(shiftUserKey);
+        }
+        let locationStatus = null;
+        switch (createMarkDto.status_location) {
+            case enums_1.Statuslocations.NO_GPS:
+                locationStatus = await this.redisService.get(`mark_location_status_gps_disabled`);
+                break;
+            case enums_1.Statuslocations.NOT_FOUND:
+                locationStatus = await this.redisService.get(`mark_location_status_outside_allowed_area`);
+                break;
+            case enums_1.Statuslocations.FOUND:
+            case enums_1.Statuslocations.FOUND_PLUS:
+                locationStatus = await this.redisService.get(`mark_location_status_ok`);
+                break;
+        }
+        const location = await this.redisService.get(locationKey);
+        console.log(location);
+        console.log(locationStatus);
+        console.log(markType);
+        console.log(shift);
         try {
-            return user;
+            markValidator
+                .isValidUser()
+                .isValidContract()
+                .workerDayexists(workerDayExists)
+                .verifyUserShift(shift)
+                .haveJustifiedAssistance(workerDayJustificationExists);
+            const { errors } = markValidator;
+            console.log(errors);
             const serviceTime = await this.abstractApiService.getTime('America/Lima');
             console.log(serviceTime);
         }
@@ -66,6 +116,7 @@ exports.MarksService = MarksService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(mark_model_1.Mark)),
     __metadata("design:paramtypes", [marks_repository_1.MarkRepository,
-        abstract_api_service_1.AbstractApiService])
+        abstract_api_service_1.AbstractApiService,
+        redis_service_1.RedisService])
 ], MarksService);
 //# sourceMappingURL=marks.service.js.map

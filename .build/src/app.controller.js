@@ -35,9 +35,6 @@ let AppController = class AppController {
         return 'Setted';
     }
     async redisGet(key) {
-        console.log(key);
-        const res = await this.redisService.get(key);
-        console.log(res);
         return this.redisService.get(key);
     }
 };

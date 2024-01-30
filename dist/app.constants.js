@@ -11,7 +11,7 @@ var GesttionaErrors;
     GesttionaErrors["INVALID_CONTRACT"] = "Usuario fuera de contrato";
     GesttionaErrors["INVALID_USER"] = "Usuario Inv\u00E1lido";
     GesttionaErrors["WORKER_DAY_EXISTENT"] = "Usuario ya marc\u00F3 y su worker day existe";
-    GesttionaErrors["INEXISTENT_TURN"] = "Turno no existe";
+    GesttionaErrors["INEXISTENT_SHIFT"] = "Turno no existe";
     GesttionaErrors["JUSTIFIED_ASSISTANCE"] = "Posee ausencia justificada";
 })(GesttionaErrors || (exports.GesttionaErrors = GesttionaErrors = {}));
 var GesttionaWarnings;
