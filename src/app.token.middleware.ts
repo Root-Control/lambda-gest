@@ -1,4 +1,4 @@
-import { CustomRequest } from '@common/types/express';
+import { CustomRequest } from './@common/types/express';
 import {
   HttpException,
   HttpStatus,

@@ -23,33 +23,68 @@ const abstract_api_service_1 = require("../@third-party-services/abstract-api/ab
 const mark_validator_1 = require("./mark.validator");
 const redis_service_1 = require("src/@redis/redis.service");
 const moment = require("moment");
+const enums_1 = require("@common/types/enums");
+const uuidv4_1 = require("uuidv4");
 let MarksService = class MarksService {
     constructor(markRepository, abstractApiService, redisService) {
         this.markRepository = markRepository;
         this.abstractApiService = abstractApiService;
         this.redisService = redisService;
     }
-    async executeMark(createMarkDto, user) {
-        console.log(user);
-        const { date } = createMarkDto;
-        const formattedDate = moment(date).format('YYYY-MM-DD');
-        const workerDayPattern = `${formattedDate}-${user.id}-${user.currentTeam.id}`;
-        const workerDayKey = `${workerDayPattern}-${createMarkDto.mark_type}`;
-        const workerDayJustification = `${workerDayPattern}-justification`;
+    async executeMark(requestMarkDto, user) {
+        const { date } = requestMarkDto;
+        const serverDate = moment().format('YYYY-MM-DD');
+        const locationKey = `location_${requestMarkDto.location}`;
+        const markTypeKey = `mark_type_${requestMarkDto.mark_type}`;
+        const workerDayPattern = `${date}_${user.id}_${user.currentTeam.id}`;
+        const workerDayJustification = `${workerDayPattern}_justification`;
+        const shiftPattern = `shift`;
+        const shiftUserKey = `${shiftPattern}_${user.currentTeam.id}_${user.id}`;
         const markValidator = new mark_validator_1.MarkValidator(user, date);
-        const workerDayExists = await this.redisService.get(workerDayKey);
+        let workerDay = await this.redisService.get(workerDayPattern);
         const workerDayJustificationExists = await this.redisService.get(workerDayJustification);
+        let shiftId = null;
+        const markType = await this.redisService.get(markTypeKey);
+        if (requestMarkDto.shift) {
+            const shiftKey = `${shiftPattern}_${requestMarkDto.shift}`;
+            shiftId = await this.redisService.get(shiftKey);
+        }
+        else {
+            shiftId = await this.redisService.get(shiftUserKey);
+        }
+        let locationStatus = null;
+        switch (requestMarkDto.status_location) {
+            case enums_1.Statuslocations.NO_GPS:
+                locationStatus = await this.redisService.get(`mark_location_status_gps_disabled`);
+                break;
+            case enums_1.Statuslocations.NOT_FOUND:
+                locationStatus = await this.redisService.get(`mark_location_status_outside_allowed_area`);
+                break;
+            case enums_1.Statuslocations.FOUND:
+            case enums_1.Statuslocations.FOUND_PLUS:
+                locationStatus = await this.redisService.get(`mark_location_status_ok`);
+                break;
+        }
+        const location = await this.redisService.get(locationKey);
         try {
             markValidator
                 .isValidUser()
                 .isValidContract()
-                .workerDayexists(workerDayExists)
-                .verifyUserShift()
+                .workerDayexists(workerDay, requestMarkDto.mark_type)
+                .verifyUserShift(shiftId)
                 .haveJustifiedAssistance(workerDayJustificationExists);
-            const { errors } = markValidator;
-            console.log(createMarkDto);
-            console.log(user);
-            console.log(errors);
+            const { errors, outOfContract } = markValidator;
+            if (!workerDay) {
+                workerDay = {
+                    date,
+                    shift_id: shiftId,
+                    user_id: user.id,
+                    team_id: user.currentTeam.id,
+                    tmpKey: (0, uuidv4_1.uuid)(),
+                    type: requestMarkDto.mark_type,
+                };
+            }
+            console.log(workerDay);
             const serviceTime = await this.abstractApiService.getTime('America/Lima');
             console.log(serviceTime);
         }
@@ -58,7 +93,7 @@ let MarksService = class MarksService {
         }
         return true;
     }
-    async executeCheckpointMark(createMarkDto, user) {
+    async executeCheckpointMark(requestMarkDto, user) {
     }
     async find(query) {
         try {

@@ -1,4 +1,4 @@
-import { Statuslocations } from '@common/types/enums';
+import { Statuslocations } from '../../../@common/types/enums';
 import {
   DateField,
   EnumField,
@@ -11,8 +11,8 @@ export class RequestMarkDto {
   @NumberField()
   timeOffline: number;
 
-  @DateField()
-  date: Date;
+  @StringField()
+  date: string;
 
   @StringField()
   time: string;

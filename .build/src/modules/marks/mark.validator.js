@@ -5,6 +5,7 @@ const app_constants_1 = require("../../app.constants");
 const moment = require("moment");
 class MarkValidator {
     constructor(_user, _date) {
+        this.outOfContract = false;
         this.errors = [];
         this.date = moment(_date);
         this.user = _user;
@@ -23,20 +24,25 @@ class MarkValidator {
     isValidContract() {
         const shouldWork = this.shouldWorkAccordingToContract();
         if (!shouldWork) {
-            if (this.team.marksettings_contract_not_restrict_mark) {
+            if (!this.team.marksettings_contract_not_restrict_mark) {
                 this.errors.push(app_constants_1.GesttionaErrors.INVALID_CONTRACT);
+            }
+            else {
+                this.outOfContract = true;
             }
         }
         return this;
     }
-    workerDayexists(exists) {
-        if (exists) {
+    workerDayexists(workerDay, type) {
+        if (workerDay && workerDay.type === type) {
             this.errors.push(app_constants_1.GesttionaErrors.WORKER_DAY_EXISTENT);
         }
         return this;
     }
-    verifyUserShift() {
-        this.errors.push(app_constants_1.GesttionaErrors.INEXISTENT_SHIFT);
+    verifyUserShift(shift) {
+        if (!shift) {
+            this.errors.push(app_constants_1.GesttionaErrors.INEXISTENT_SHIFT);
+        }
         return this;
     }
     haveJustifiedAssistance(isWorkerDayJustified) {

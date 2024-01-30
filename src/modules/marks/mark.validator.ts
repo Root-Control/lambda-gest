@@ -1,20 +1,18 @@
-import { User } from '@common/types/express';
+import { User } from '../../@common/types/express';
 import { GesttionaErrors } from '../../app.constants';
-import {
-  RedisBackground,
-  RedisShift,
-  RedisTeam,
-} from '@common/global-types/types';
+import { RedisBackground, RedisTeam } from '@common/global-types/types';
 import * as moment from 'moment';
+import { CreateWorkerDayDto } from '../worker-days/dto/create-worker-day.dto';
 
 export class MarkValidator {
   readonly user: User;
   readonly team: RedisTeam;
   readonly background: RedisBackground;
   readonly date: moment.Moment;
+  outOfContract: boolean = false;
 
   errors: string[] = [];
-  constructor(_user: User, _date: Date) {
+  constructor(_user: User, _date: string) {
     this.date = moment(_date);
     this.user = _user;
     this.team = _user.currentTeam;
@@ -37,15 +35,17 @@ export class MarkValidator {
     const shouldWork = this.shouldWorkAccordingToContract();
 
     if (!shouldWork) {
-      if (this.team.marksettings_contract_not_restrict_mark) {
+      if (!this.team.marksettings_contract_not_restrict_mark) {
         this.errors.push(GesttionaErrors.INVALID_CONTRACT);
+      } else {
+        this.outOfContract = true;
       }
     }
     return this;
   }
 
-  workerDayexists(exists: boolean) {
-    if (exists) {
+  workerDayexists(workerDay: CreateWorkerDayDto, type: string) {
+    if (workerDay && workerDay.type === type) {
       this.errors.push(GesttionaErrors.WORKER_DAY_EXISTENT);
     }
     return this;
@@ -55,7 +55,7 @@ export class MarkValidator {
    *
    * @returns TODO VALIDATE FROM CACHE
    */
-  verifyUserShift(shift: RedisShift) {
+  verifyUserShift(shift: number) {
     if (!shift) {
       this.errors.push(GesttionaErrors.INEXISTENT_SHIFT);
     }

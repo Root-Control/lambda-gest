@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const marks_service_1 = require("./marks.service");
 const swagger_1 = require("@nestjs/swagger");
 const mark_dto_1 = require("./dto/mark.dto");
-const create_mark_dto_1 = require("./dto/create-mark.dto");
+const request_mark_dto_1 = require("./dto/request-mark.dto");
 const enums_1 = require("../../@common/gesttiona-constants/enums");
 let MarkController = class MarkController {
     constructor(marksService) {
@@ -35,7 +35,6 @@ let MarkController = class MarkController {
         }
     }
     findById(id) {
-        console.log(1);
         return this.marksService.findById(id);
     }
 };
@@ -64,7 +63,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_mark_dto_1.CreateMarkDto]),
+    __metadata("design:paramtypes", [Object, request_mark_dto_1.RequestMarkDto]),
     __metadata("design:returntype", void 0)
 ], MarkController.prototype, "mark", null);
 __decorate([

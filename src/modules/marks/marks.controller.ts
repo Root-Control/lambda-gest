@@ -11,7 +11,7 @@ import {
 import { MarksService } from './marks.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MarkDto, MarkQueryDto } from './dto/mark.dto';
-import { CustomRequest } from '@common/types/express';
+import { CustomRequest } from '../../@common/types/express';
 import { RequestMarkDto } from './dto/request-mark.dto';
 import { MarkTypes } from '../../@common/gesttiona-constants/enums';
 

@@ -1,17 +1,16 @@
-import { Statuslocations } from '@common/types/enums';
-export declare class CreateMarkDto {
-    timeOffline: number;
-    date: Date;
+export declare class RequestMarkDto {
     time: string;
-    mark_type: string;
-    shift?: string;
-    img: string;
-    location: number;
-    status_location: Statuslocations;
-    realDate: string;
+    isValid: boolean;
+    errors: string[];
+    device_time: string;
+    service_time: string;
+    user_service: boolean;
+    time_service_alert: boolean;
     latitude: string;
     longitude: string;
-    photo: string;
-    markTypeId: number;
-    locationId: number;
+    mark_type_id: number;
+    location_id: number;
+    location_status_id: number;
+    date: string;
+    management_center_id?: number;
 }

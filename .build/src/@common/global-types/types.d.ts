@@ -82,3 +82,15 @@ export type RedisBackground = {
     id_number_format: string;
     id_number_code: string;
 };
+export type RedisShift = {
+    [key: string]: any;
+};
+export type RedisLocation = {
+    [key: string]: any;
+};
+export type RedisLocationStatus = {
+    [key: string]: any;
+};
+export type RedisMarkType = {
+    [key: string]: any;
+};

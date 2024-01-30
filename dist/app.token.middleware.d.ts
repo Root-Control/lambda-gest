@@ -1,4 +1,4 @@
-import { CustomRequest } from '@common/types/express';
+import { CustomRequest } from './@common/types/express';
 import { NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response, NextFunction } from 'express';

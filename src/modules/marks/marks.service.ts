@@ -5,7 +5,7 @@ import { MarkQueryDto, MarkDto } from './dto/mark.dto';
 import { plainToClass } from 'class-transformer';
 import { FindManyOptions } from 'typeorm';
 import { Mark } from './mark.model';
-import { User } from '@common/types/express';
+import { User } from '../../@common/types/express';
 import { AbstractApiService } from '../@third-party-services/abstract-api/abstract-api.service';
 import { RequestMarkDto } from './dto/request-mark.dto';
 import { MarkValidator } from './mark.validator';
@@ -15,9 +15,10 @@ import {
   RedisLocation,
   RedisLocationStatus,
   RedisMarkType,
-  RedisShift,
 } from '@common/global-types/types';
-import { Statuslocations } from '@common/types/enums';
+import { Statuslocations } from '../../@common/types/enums';
+import { CreateWorkerDayDto } from '../worker-days/dto/create-worker-day.dto';
+import { uuid } from 'uuidv4';
 @Injectable()
 export class MarksService {
   constructor(
@@ -33,16 +34,15 @@ export class MarksService {
    * @param user 
    * @returns 
    */
-  async executeMark(createMarkDto: RequestMarkDto, user: User) {
-    const { date } = createMarkDto;
-    const formattedDate = moment(date).format('YYYY-MM-DD');
+  async executeMark(requestMarkDto: RequestMarkDto, user: User) {
+    const { date } = requestMarkDto;
+    const serverDate = moment().format('YYYY-MM-DD');
 
-    const locationKey = `location_${createMarkDto.location}`;
+    const locationKey = `location_${requestMarkDto.location}`;
 
-    const markTypeKey = `mark_type_${createMarkDto.mark_type}`;
+    const markTypeKey = `mark_type_${requestMarkDto.mark_type}`;
 
-    const workerDayPattern = `${formattedDate}_${user.id}_${user.currentTeam.id}`;
-    const workerDayKey = `${workerDayPattern}_${createMarkDto.mark_type}`;
+    const workerDayPattern = `${date}_${user.id}_${user.currentTeam.id}`;
     const workerDayJustification = `${workerDayPattern}_justification`;
 
     const shiftPattern = `shift`;
@@ -50,24 +50,28 @@ export class MarksService {
 
     const markValidator = new MarkValidator(user, date);
 
-    const workerDayExists = await this.redisService.get<boolean>(workerDayKey);
+    let workerDay =
+      await this.redisService.get<CreateWorkerDayDto>(workerDayPattern);
     const workerDayJustificationExists = await this.redisService.get<boolean>(
       workerDayJustification,
     );
 
-    let shift: RedisShift = null;
+    let shiftId: number = null;
     const markType = await this.redisService.get<RedisMarkType>(markTypeKey);
 
-    if (createMarkDto.shift) {
-      const shiftKey = `${shiftPattern}_${createMarkDto.shift}`;
-      shift = await this.redisService.get<RedisShift>(shiftKey);
+    if (requestMarkDto.shift) {
+      const shiftKey = `${shiftPattern}_${requestMarkDto.shift}`;
+      shiftId = await this.redisService.get<number>(shiftKey);
+      //shift_1
+      //shift => true o false
     } else {
-      shift = await this.redisService.get<RedisShift>(shiftUserKey);
+      shiftId = await this.redisService.get<number>(shiftUserKey);
+      //shift_1_1
     }
 
     let locationStatus: RedisLocationStatus = null;
 
-    switch (createMarkDto.status_location) {
+    switch (requestMarkDto.status_location) {
       case Statuslocations.NO_GPS:
         locationStatus = await this.redisService.get<RedisLocationStatus>(
           `mark_location_status_gps_disabled`,
@@ -88,21 +92,33 @@ export class MarksService {
 
     const location = await this.redisService.get<RedisLocation>(locationKey);
 
-    console.log(location);
+/*     console.log(location);
     console.log(locationStatus);
     console.log(markType);
-    console.log(shift);
+    console.log(shift); */
 
     try {
       markValidator
         .isValidUser()
         .isValidContract()
-        .workerDayexists(workerDayExists)
-        .verifyUserShift(shift)
+        .workerDayexists(workerDay, requestMarkDto.mark_type)
+        .verifyUserShift(shiftId)
         .haveJustifiedAssistance(workerDayJustificationExists);
 
-      const { errors } = markValidator;
-      console.log(errors);
+      const { errors, outOfContract } = markValidator;
+
+      if (!workerDay) {
+        workerDay = {
+          date,
+          shift_id: shiftId,
+          user_id: user.id,
+          team_id: user.currentTeam.id,
+          tmpKey: uuid(),
+          type: requestMarkDto.mark_type,
+        };
+      }
+
+      console.log(workerDay);
 
       const serviceTime = await this.abstractApiService.getTime('America/Lima');
       console.log(serviceTime);
@@ -128,7 +144,7 @@ export class MarksService {
   }
 
 
-  async executeCheckpointMark(createMarkDto: RequestMarkDto, user: User) {
+  async executeCheckpointMark(requestMarkDto: RequestMarkDto, user: User) {
 
   }
 

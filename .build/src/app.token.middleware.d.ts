@@ -7,5 +7,5 @@ export declare class DecodeJwtMiddleware implements NestMiddleware {
     private readonly configService;
     private readonly redisService;
     constructor(configService: ConfigService, redisService: RedisService);
-    use(req: CustomRequest, res: Response, next: NextFunction): Promise<void>;
+    use(req: CustomRequest, res: Response, next: NextFunction): Promise<void | Response<any, Record<string, any>>>;
 }
