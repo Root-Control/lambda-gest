@@ -22,7 +22,7 @@ let AbstractApiService = class AbstractApiService {
     getTime(timezone) {
         const { apiKey, endpoint } = this.configService.get('abstract');
         const url = `${endpoint}/current_time?api_key=${apiKey}&location=${timezone}`;
-        const request$ = this.httpService.get(url).pipe((0, rxjs_1.map)(res => res.data));
+        const request$ = this.httpService.get(url).pipe((0, rxjs_1.map)((res) => res.data), (0, rxjs_1.catchError)(() => (0, rxjs_1.of)(null)));
         return (0, rxjs_1.lastValueFrom)(request$);
     }
 };

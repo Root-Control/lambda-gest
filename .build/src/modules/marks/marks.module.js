@@ -14,6 +14,7 @@ const marks_controller_1 = require("./marks.controller");
 const marks_service_1 = require("./marks.service");
 const marks_repository_1 = require("./marks.repository");
 const abstract_api_1 = require("../@third-party-services/abstract-api");
+const rabbit_mq_1 = require("../@microservices/rabbit-mq");
 let MarksModule = class MarksModule {
 };
 exports.MarksModule = MarksModule;
@@ -21,7 +22,8 @@ exports.MarksModule = MarksModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([mark_model_1.Mark]),
-            abstract_api_1.AbstractApiModule
+            abstract_api_1.AbstractApiModule,
+            rabbit_mq_1.RabbitMqModule,
         ],
         controllers: [marks_controller_1.MarkController],
         providers: [marks_service_1.MarksService, marks_repository_1.MarkRepository],

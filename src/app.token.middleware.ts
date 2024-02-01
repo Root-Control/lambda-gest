@@ -1,4 +1,4 @@
-import { CustomRequest } from './@common/types/express';
+import { CustomRequest } from '@common/types/express';
 import {
   HttpException,
   HttpStatus,
@@ -27,20 +27,31 @@ export class DecodeJwtMiddleware implements NestMiddleware {
       try {
         const { userId } = verify(token, privateKey);
         const details = await this.redisService.get<RedisUserDetails>(
-          `user-${userId}`,
+          `user_${userId}`,
         );
 
         if (!details) {
           return res.status(HttpStatus.UNAUTHORIZED).send('No user found');
         }
 
-        const { user, currentTeam, background, subcompanies } = details;
-
-        req.user = {
-          ...user,
+        const {
+          id,
+          name,
+          lastname,
+          id_number,
           currentTeam,
           background,
-          subcompanies,
+          subcompany,
+        } = details;
+
+        req.user = {
+          id,
+          name,
+          lastname,
+          id_number,
+          currentTeam,
+          background,
+          subcompany,
         };
         return next();
       } catch (error) {

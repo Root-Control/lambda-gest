@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MarkRepository } from './marks.repository';
 import { MarkQueryDto, MarkDto } from './dto/mark.dto';
@@ -18,7 +18,11 @@ import {
 } from '@common/global-types/types';
 import { Statuslocations } from '../../@common/types/enums';
 import { CreateWorkerDayDto } from '../worker-days/dto/create-worker-day.dto';
-import { uuid } from 'uuidv4';
+import { v4 } from 'uuid';
+import { ClientProxy } from '@nestjs/microservices';
+import { diffInMinutes } from '@common/utilities/utils';
+
+const MARK_PATTERN = 'mark';
 @Injectable()
 export class MarksService {
   constructor(
@@ -26,17 +30,19 @@ export class MarksService {
     private readonly markRepository: MarkRepository,
     private readonly abstractApiService: AbstractApiService,
     private readonly redisService: RedisService,
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
   ) {}
 
   /**
-   * 
+   *
    * @param createMarkDto TODO, WORKERDAY
-   * @param user 
-   * @returns 
+   * @param user
+   * @returns
    */
   async executeMark(requestMarkDto: RequestMarkDto, user: User) {
+    const tmpKey = v4();
     const { date } = requestMarkDto;
-    const serverDate = moment().format('YYYY-MM-DD');
+    let realDate;
 
     const locationKey = `location_${requestMarkDto.location}`;
 
@@ -92,10 +98,12 @@ export class MarksService {
 
     const location = await this.redisService.get<RedisLocation>(locationKey);
 
-/*     console.log(location);
-    console.log(locationStatus);
-    console.log(markType);
-    console.log(shift); */
+    if (
+      requestMarkDto.realDate &&
+      moment(requestMarkDto.realDate, 'YYYY-MM-DD', true).isValid()
+    ) {
+      realDate = requestMarkDto.realDate;
+    }
 
     try {
       markValidator
@@ -113,40 +121,86 @@ export class MarksService {
           shift_id: shiftId,
           user_id: user.id,
           team_id: user.currentTeam.id,
-          tmpKey: uuid(),
-          type: requestMarkDto.mark_type,
+          tmpKey,
+          type: requestMarkDto.mark_type, //Es para cachear
         };
       }
 
-      console.log(workerDay);
+      const payload = {
+        data: {
+          name: `${user.name} ${user.lastname}`,
+          second_id_number: 'TODO',
+          id_number: user.id_number,
+          org_name: user.currentTeam.name,
+          markType: requestMarkDto.mark_type,
+          time: requestMarkDto.time,
+          location_name: location.name,
+          location_address: location.location_address,
+          schedule_start: 'ToFill',
+          schedule_lunch: 'ToFill',
+          schedule_end: 'ToFill',
+          subcompany_id_number: user.subcompany.id,
+          subcompany_business_name: user.subcompany.business_name,
+          subcompany_address: user.subcompany.address,
+          date: moment(date),
+        },
+        mark: {
+          tmpKey,
+          time: requestMarkDto.time,
+          photo: 'ToFill',
+          latitude: requestMarkDto.latitude,
+          longitude: requestMarkDto.longitude,
+          mark_type_id: markType.id,
+          location_id: location.id,
+          worker_day_id: null,
+          shift_id: shiftId,
+          date: realDate,
+          data: 'ToFillFromDataObject',
+          crypt_data: 'ToFillEncryptedDataObject',
+          location_status_id: locationStatus.id,
+          source: requestMarkDto.source || null,
+          management_center_id: requestMarkDto.management_center_id || null,
+          errors,
+          valid: errors.length ? false : true,
+          device_time: requestMarkDto.time,
+          use_service: false,
+          service_time: null,
+          time_service_alert: false,
+        },
+        workerDay,
+        metadata: {
+          outOfContract,
+        },
+      };
 
-      const serviceTime = await this.abstractApiService.getTime('America/Lima');
-      console.log(serviceTime);
+      const { location_name } = user.currentTeam.country;
+      this.validateAndSendToQueue(location_name, payload);
     } catch (ex) {
       console.log(ex);
     }
-    /**
-     * Params
-     * mark_type
-     */
-    /**
-     * 1.- Obtener el usuario
-     * 2.- Obtener fecha y hora enviada por el frontend
-     * 3.- Obtener la hora basado en su region (servicio externo)
-     * 4.- Verificar si está dentro del contrato
-     *  4.1. Si no lo está, añadiremos metadata de informacion de error e invalidaremos la marcacion
-     *  4.2. valid = false
-     *  4.3. metadata errors: ['out of contract'];
-     *
-     * 5.-
-     */
     return true;
   }
 
+  async validateAndSendToQueue(
+    location_name: string,
+    payload: Record<string, any>,
+  ) {
+    const result = await this.abstractApiService.getTime(location_name);
 
-  async executeCheckpointMark(requestMarkDto: RequestMarkDto, user: User) {
+    if (result) {
+      const [, time] = result.datetime.split(' ');
+      const deviceTime = payload.data.time;
 
+      payload.mark.use_service = true;
+      payload.mark.service_time = time;
+      payload.mark.time_service_alert = diffInMinutes(deviceTime, time) > 15;
+    }
+    console.log('Sending to Rabbit');
+    this.client.emit(MARK_PATTERN, payload);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async executeCheckpointMark(requestMarkDto: RequestMarkDto, user: User) {}
 
   async find(query: MarkQueryDto & FindManyOptions): Promise<MarkDto[]> {
     try {

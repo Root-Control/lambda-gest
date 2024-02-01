@@ -5,7 +5,7 @@ import {
   StringField,
 } from '../../../@common/decorators/field.decorators';
 
-export class RequestMarkDto {
+export class CreateMarkDto {
   @StringField()
   time: string;
 

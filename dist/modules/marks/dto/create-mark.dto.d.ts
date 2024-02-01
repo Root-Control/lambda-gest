@@ -1,4 +1,4 @@
-export declare class RequestMarkDto {
+export declare class CreateMarkDto {
     time: string;
     isValid: boolean;
     errors: string[];

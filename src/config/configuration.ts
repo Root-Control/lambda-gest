@@ -16,4 +16,8 @@ export default (): IAppConfig => ({
     publicKey: getString(process.env.JWT_PUBLIC_KEY || ''),
     ttl: 5000,
   },
+  rabbit: {
+    port: parseInt(process.env.RABBIT_PORT, 10) || 5672,
+    host: getString(process.env.RABBIT_HOST) || 'localhost',
+  },
 });

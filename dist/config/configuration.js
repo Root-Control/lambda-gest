@@ -16,5 +16,9 @@ exports.default = () => ({
         publicKey: (0, utils_1.getString)(process.env.JWT_PUBLIC_KEY || ''),
         ttl: 5000,
     },
+    rabbit: {
+        port: parseInt(process.env.RABBIT_PORT, 10) || 5672,
+        host: (0, utils_1.getString)(process.env.RABBIT_HOST) || 'localhost',
+    },
 });
 //# sourceMappingURL=configuration.js.map

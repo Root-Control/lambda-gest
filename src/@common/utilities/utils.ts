@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export function getVariableName<TResult>(
   getVar: () => TResult,
 ): string | undefined {
@@ -29,4 +31,10 @@ export function isJsonString(string: string) {
     return false;
   }
   return true;
+}
+
+export function diffInMinutes(time1: string, time2: string) {
+  const formattedTime1 = moment(time1, 'HH:mm:ss');
+  const formattedTime2 = moment(time2, 'HH:mm:ss');
+  return Math.abs(formattedTime1.diff(formattedTime2, 'minutes'));
 }

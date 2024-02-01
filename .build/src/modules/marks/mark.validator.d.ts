@@ -1,4 +1,4 @@
-import { User } from '@common/types/express';
+import { User } from '../../@common/types/express';
 import { RedisBackground, RedisTeam } from '@common/global-types/types';
 import * as moment from 'moment';
 import { CreateWorkerDayDto } from '../worker-days/dto/create-worker-day.dto';

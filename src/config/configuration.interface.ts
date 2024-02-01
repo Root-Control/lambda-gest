@@ -3,6 +3,7 @@ interface IAppConfig {
   redis: IRedis;
   jwt: IJwtConfig;
   abstract: IAbstractApi;
+  rabbit: IRabbit;
 }
 
 interface IAbstractApi {
@@ -20,4 +21,9 @@ interface IRedis {
   host: string;
 }
 
-export { IAppConfig, IRedis, IJwtConfig, IAbstractApi };
+interface IRabbit {
+  port: number;
+  host: string;
+}
+
+export { IAppConfig, IRedis, IJwtConfig, IAbstractApi, IRabbit };

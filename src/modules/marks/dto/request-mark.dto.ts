@@ -1,8 +1,9 @@
 import { Statuslocations } from '../../../@common/types/enums';
 import {
-  DateField,
+  DateFieldOptional,
   EnumField,
   NumberField,
+  NumberFieldOptional,
   StringField,
   StringFieldOptional,
 } from '../../../@common/decorators/field.decorators';
@@ -32,14 +33,20 @@ export class RequestMarkDto {
   @EnumField(() => Statuslocations)
   status_location: Statuslocations;
 
-  @DateField()
-  realDate: string;
+  @DateFieldOptional()
+  realDate?: string;
 
   @StringFieldOptional({ nullable: true })
   latitude: string;
 
   @StringFieldOptional({ nullable: true })
   longitude: string;
+
+  @StringFieldOptional({ nullable: true })
+  source?: string;
+
+  @NumberFieldOptional({ nullable: true })
+  management_center_id?: number;
 
   @StringFieldOptional({ nullable: true, minLength: 0 })
   photo: string;

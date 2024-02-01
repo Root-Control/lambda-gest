@@ -20,10 +20,9 @@ export class MarkValidator {
   }
 
   isValidUser() {
-    const { currentTeam, subcompanies, background } = this.user;
-    const [company] = subcompanies;
+    const { currentTeam, subcompany, background } = this.user;
     if (
-      currentTeam.id !== company.team_id ||
+      currentTeam.id !== subcompany.team_id ||
       currentTeam.id !== background.team_id
     ) {
       this.errors.push(GesttionaErrors.INVALID_USER);

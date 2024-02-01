@@ -3,9 +3,12 @@ export type KeyOfType<Entity, U> = {
     [P in keyof Required<Entity>]: Required<Entity>[P] extends U ? P : Required<Entity>[P] extends U[] ? P : never;
 }[keyof Entity];
 export type RedisUserDetails = {
-    user: RedisUser;
+    id: number;
+    name: string;
+    lastname: string;
+    id_number: string;
     currentTeam: RedisTeam;
-    subcompanies: RedisCompany[];
+    subcompany: RedisCompany;
     background: RedisBackground;
 };
 export interface RedisUser {
@@ -33,54 +36,27 @@ export interface RedisUser {
 export type RedisTeam = {
     id: number;
     name: string;
-    personal_team: boolean;
-    survey: string;
-    country_id: number;
-    function_id: number;
-    access_notification_marks: boolean;
-    access_my_hours_worked: boolean;
-    access_marks_history: boolean;
-    access_reports: boolean;
-    access_hash_validation: boolean;
-    access_day_management: boolean;
-    display_format_lastname_name: boolean;
-    marksettings_checkpoint_to_management_center: boolean;
-    marksettings_teleworking_collaborator_alerts: boolean;
-    marksettings_managers_monitoringr_alerts: boolean;
-    marksettings_contract_not_restrict_mark?: boolean;
-    automatic_approval_he: boolean;
-    request_wd_consider_days_off: boolean;
+    marksettings_contract_not_restrict_mark: boolean;
+    country: {
+        id: number;
+        name: string;
+        location_name: string;
+    };
 };
 export type RedisCompany = {
     id: number;
     team_id: number;
+    name: string;
+    business_name: string;
+    address: string;
 };
 export type RedisBackground = {
     id: number;
-    email: null | string;
-    phone: string;
-    extra_hours: boolean;
-    init_contract: string;
-    end_contract: null | string;
-    indefinite_contract: boolean;
+    name: string;
     team_id: number;
-    user_id: number;
-    created_at: null | string;
-    updated_at: string;
-    role_org_id: null | number;
-    area_org_id: null | number;
-    id_number: string;
-    default_config: boolean;
-    check_assistance: boolean;
-    setup_access: boolean;
-    tcbdda: boolean;
-    work_sundays_holidays: boolean;
-    telework: boolean;
-    worker_type: string;
-    init_contract_format: string;
-    end_contract_format: null | string;
-    id_number_format: string;
-    id_number_code: string;
+    end_contract: string;
+    indefinite_contract: string;
+    init_contract: string;
 };
 export type RedisShift = {
     [key: string]: any;

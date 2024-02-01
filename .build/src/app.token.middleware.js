@@ -25,16 +25,19 @@ let DecodeJwtMiddleware = class DecodeJwtMiddleware {
         if (token) {
             try {
                 const { userId } = (0, jsonwebtoken_1.verify)(token, privateKey);
-                const details = await this.redisService.get(`user-${userId}`);
+                const details = await this.redisService.get(`user_${userId}`);
                 if (!details) {
                     return res.status(common_1.HttpStatus.UNAUTHORIZED).send('No user found');
                 }
-                const { user, currentTeam, background, subcompanies } = details;
+                const { id, name, lastname, id_number, currentTeam, background, subcompany, } = details;
                 req.user = {
-                    ...user,
+                    id,
+                    name,
+                    lastname,
+                    id_number,
                     currentTeam,
                     background,
-                    subcompanies,
+                    subcompany,
                 };
                 return next();
             }
