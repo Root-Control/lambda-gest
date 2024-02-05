@@ -1,20 +1,37 @@
-service: nest-serverless-lambda-demo
+service: aws-node # NOTE: update this with your service name
+frameworkVersion: '3'
 
 plugins:
- - 'serverless-plugin-typescript'
- - serverless-plugin-optimize
- - serverless-offline
+  - serverless-offline
 
 provider:
  name: aws
  profile: f5
+ stage: dev
  runtime: nodejs20.x
 
 functions:
- main: # The name of the lambda function
-   # The module 'handler' is exported in the file 'src/lambda'
-   handler: src/lambda.handler
-   events:
-     - http:
-         method: any
-         path: /{any+}
+  lambdafx:
+    handler: index.handler
+    events:
+      - http:
+          path: mi-funcion
+          method: get
+  ping:
+    handler: index.ping
+    events:
+      - http:
+          path: ping
+          method: get
+  test:
+    handler: index.test
+    events:
+      - http:
+          path: test
+          method: get
+  mark:
+    handler: index.mark
+    events:
+      - http:
+          path: mark
+          method: post

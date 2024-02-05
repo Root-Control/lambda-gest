@@ -1,14 +1,14 @@
 {
   "service": {
-    "service": "nest-serverless-lambda-demo",
+    "service": "aws-node",
     "serviceObject": {
-      "name": "nest-serverless-lambda-demo"
+      "name": "aws-node"
     },
     "provider": {
       "name": "aws",
       "profile": "f5",
-      "runtime": "nodejs20.x",
       "stage": "dev",
+      "runtime": "nodejs20.x",
       "region": "us-east-1",
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
@@ -84,10 +84,28 @@
               }
             }
           },
-          "MainLogGroup": {
+          "LambdafxLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/nest-serverless-lambda-demo-dev-main"
+              "LogGroupName": "/aws/lambda/aws-node-dev-lambdafx"
+            }
+          },
+          "PingLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/aws-node-dev-ping"
+            }
+          },
+          "TestLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/aws-node-dev-test"
+            }
+          },
+          "MarkLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/aws-node-dev-mark"
             }
           },
           "IamRoleLambdaExecution": {
@@ -115,7 +133,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "nest-serverless-lambda-demo",
+                        "aws-node",
                         "dev",
                         "lambda"
                       ]
@@ -133,7 +151,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/nest-serverless-lambda-demo-dev*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/aws-node-dev*:*"
                           }
                         ]
                       },
@@ -144,7 +162,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/nest-serverless-lambda-demo-dev*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/aws-node-dev*:*:*"
                           }
                         ]
                       }
@@ -157,7 +175,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "nest-serverless-lambda-demo",
+                    "aws-node",
                     "dev",
                     {
                       "Ref": "AWS::Region"
@@ -168,18 +186,18 @@
               }
             }
           },
-          "MainLambdaFunction": {
+          "LambdafxLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/nest-serverless-lambda-demo/dev/1706763843893-2024-02-01T05:04:03.893Z/nest-serverless-lambda-demo.zip"
+                "S3Key": "serverless/aws-node/dev/1706836129393-2024-02-02T01:08:49.393Z/aws-node.zip"
               },
-              "Handler": "src/lambda.handler",
+              "Handler": "index.handler",
               "Runtime": "nodejs20.x",
-              "FunctionName": "nest-serverless-lambda-demo-dev-main",
+              "FunctionName": "aws-node-dev-lambdafx",
               "MemorySize": 1024,
               "Timeout": 6,
               "Role": {
@@ -190,23 +208,128 @@
               }
             },
             "DependsOn": [
-              "MainLogGroup"
+              "LambdafxLogGroup"
             ]
           },
-          "MainLambdaVersionU3MGDKTR6hpndj8N3fjMX2adCafiESmibg6tRdhmM": {
+          "PingLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/aws-node/dev/1706836129393-2024-02-02T01:08:49.393Z/aws-node.zip"
+              },
+              "Handler": "index.ping",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "aws-node-dev-ping",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "PingLogGroup"
+            ]
+          },
+          "TestLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/aws-node/dev/1706836129393-2024-02-02T01:08:49.393Z/aws-node.zip"
+              },
+              "Handler": "index.test",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "aws-node-dev-test",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "TestLogGroup"
+            ]
+          },
+          "MarkLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/aws-node/dev/1706836129393-2024-02-02T01:08:49.393Z/aws-node.zip"
+              },
+              "Handler": "index.mark",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "aws-node-dev-mark",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "MarkLogGroup"
+            ]
+          },
+          "LambdafxLambdaVersionS3vit9g8ZcjqxbAayEUPYTLlp7Ix6S9FdLBbGaiX0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
-                "Ref": "MainLambdaFunction"
+                "Ref": "LambdafxLambdaFunction"
               },
-              "CodeSha256": "QWdDrIlmA0PbT2cCsszrnMcUAVyqIo+xFGipeJLq2yM="
+              "CodeSha256": "OcdkYfGBa4X68tABrEDmlkEbn7EF8I8Y0lYDPIiN0SY="
+            }
+          },
+          "PingLambdaVersion9BhRaNESv7C0IkB9LbcdYexKDRGsTqHGPQOOMlMEB0": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "PingLambdaFunction"
+              },
+              "CodeSha256": "OcdkYfGBa4X68tABrEDmlkEbn7EF8I8Y0lYDPIiN0SY="
+            }
+          },
+          "TestLambdaVersion7fzsp5d4MQu3d1UPWd493hxIK3M2uM4Skbs5fYVc4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "TestLambdaFunction"
+              },
+              "CodeSha256": "OcdkYfGBa4X68tABrEDmlkEbn7EF8I8Y0lYDPIiN0SY="
+            }
+          },
+          "MarkLambdaVersion9tA6BObir9MfY4e6PO6mz9Z3Yd1SAdRWUrNJvlmXc": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "MarkLambdaFunction"
+              },
+              "CodeSha256": "OcdkYfGBa4X68tABrEDmlkEbn7EF8I8Y0lYDPIiN0SY="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "dev-nest-serverless-lambda-demo",
+              "Name": "dev-aws-node",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -215,7 +338,7 @@
               "Policy": ""
             }
           },
-          "ApiGatewayResourceAnyVar": {
+          "ApiGatewayResourceMiDashfuncion": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
               "ParentId": {
@@ -224,19 +347,64 @@
                   "RootResourceId"
                 ]
               },
-              "PathPart": "{any+}",
+              "PathPart": "mi-funcion",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
             }
           },
-          "ApiGatewayMethodAnyVarAny": {
+          "ApiGatewayResourcePing": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "ping",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceTest": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "test",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceMark": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "mark",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodMiDashfuncionGet": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
-              "HttpMethod": "ANY",
+              "HttpMethod": "GET",
               "RequestParameters": {},
               "ResourceId": {
-                "Ref": "ApiGatewayResourceAnyVar"
+                "Ref": "ApiGatewayResourceMiDashfuncion"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -261,7 +429,7 @@
                       ":lambda:path/2015-03-31/functions/",
                       {
                         "Fn::GetAtt": [
-                          "MainLambdaFunction",
+                          "LambdafxLambdaFunction",
                           "Arn"
                         ]
                       },
@@ -273,10 +441,148 @@
               "MethodResponses": []
             },
             "DependsOn": [
-              "MainLambdaPermissionApiGateway"
+              "LambdafxLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1706763822178": {
+          "ApiGatewayMethodPingGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourcePing"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "PingLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "PingLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodTestGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceTest"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "TestLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "TestLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodMarkPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceMark"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "MarkLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "MarkLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1706836124886": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -285,15 +591,129 @@
               "StageName": "dev"
             },
             "DependsOn": [
-              "ApiGatewayMethodAnyVarAny"
+              "ApiGatewayMethodMiDashfuncionGet",
+              "ApiGatewayMethodPingGet",
+              "ApiGatewayMethodTestGet",
+              "ApiGatewayMethodMarkPost"
             ]
           },
-          "MainLambdaPermissionApiGateway": {
+          "LambdafxLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
                 "Fn::GetAtt": [
-                  "MainLambdaFunction",
+                  "LambdafxLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "PingLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "PingLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "TestLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "TestLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "MarkLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "MarkLambdaFunction",
                   "Arn"
                 ]
               },
@@ -332,16 +752,43 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-nest-serverless-lambda-demo-dev-ServerlessDeploymentBucketName"
+              "Name": "sls-aws-node-dev-ServerlessDeploymentBucketName"
             }
           },
-          "MainLambdaFunctionQualifiedArn": {
+          "LambdafxLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MainLambdaVersionU3MGDKTR6hpndj8N3fjMX2adCafiESmibg6tRdhmM"
+              "Ref": "LambdafxLambdaVersionS3vit9g8ZcjqxbAayEUPYTLlp7Ix6S9FdLBbGaiX0"
             },
             "Export": {
-              "Name": "sls-nest-serverless-lambda-demo-dev-MainLambdaFunctionQualifiedArn"
+              "Name": "sls-aws-node-dev-LambdafxLambdaFunctionQualifiedArn"
+            }
+          },
+          "PingLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "PingLambdaVersion9BhRaNESv7C0IkB9LbcdYexKDRGsTqHGPQOOMlMEB0"
+            },
+            "Export": {
+              "Name": "sls-aws-node-dev-PingLambdaFunctionQualifiedArn"
+            }
+          },
+          "TestLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "TestLambdaVersion7fzsp5d4MQu3d1UPWd493hxIK3M2uM4Skbs5fYVc4"
+            },
+            "Export": {
+              "Name": "sls-aws-node-dev-TestLambdaFunctionQualifiedArn"
+            }
+          },
+          "MarkLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "MarkLambdaVersion9tA6BObir9MfY4e6PO6mz9Z3Yd1SAdRWUrNJvlmXc"
+            },
+            "Export": {
+              "Name": "sls-aws-node-dev-MarkLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -367,7 +814,7 @@
               ]
             },
             "Export": {
-              "Name": "sls-nest-serverless-lambda-demo-dev-ServiceEndpoint"
+              "Name": "sls-aws-node-dev-ServiceEndpoint"
             }
           }
         }
@@ -457,42 +904,92 @@
       "vpc": {}
     },
     "plugins": [
-      "serverless-plugin-typescript",
-      "serverless-plugin-optimize",
       "serverless-offline"
     ],
     "pluginsData": {},
     "functions": {
-      "main": {
-        "handler": "src/lambda.handler",
+      "lambdafx": {
+        "handler": "index.handler",
         "events": [
           {
             "http": {
-              "method": "any",
-              "path": "{any+}",
+              "path": "mi-funcion",
+              "method": "get",
               "integration": "AWS_PROXY"
             }
           }
         ],
-        "name": "nest-serverless-lambda-demo-dev-main",
-        "package": {
-          "exclude": [
-            "node_modules/serverless-plugin-typescript"
-          ],
-          "include": [],
-          "patterns": []
-        },
+        "name": "aws-node-dev-lambdafx",
+        "package": {},
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "MainLambdaVersionU3MGDKTR6hpndj8N3fjMX2adCafiESmibg6tRdhmM"
+        "versionLogicalId": "LambdafxLambdaVersionS3vit9g8ZcjqxbAayEUPYTLlp7Ix6S9FdLBbGaiX0"
+      },
+      "ping": {
+        "handler": "index.ping",
+        "events": [
+          {
+            "http": {
+              "path": "ping",
+              "method": "get",
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "aws-node-dev-ping",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "PingLambdaVersion9BhRaNESv7C0IkB9LbcdYexKDRGsTqHGPQOOMlMEB0"
+      },
+      "test": {
+        "handler": "index.test",
+        "events": [
+          {
+            "http": {
+              "path": "test",
+              "method": "get",
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "aws-node-dev-test",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "TestLambdaVersion7fzsp5d4MQu3d1UPWd493hxIK3M2uM4Skbs5fYVc4"
+      },
+      "mark": {
+        "handler": "index.mark",
+        "events": [
+          {
+            "http": {
+              "path": "mark",
+              "method": "post",
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "aws-node-dev-mark",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "MarkLambdaVersion9tA6BObir9MfY4e6PO6mz9Z3Yd1SAdRWUrNJvlmXc"
       }
     },
     "configValidationMode": "warn",
     "serviceFilename": "serverless.yml",
     "initialServerlessConfig": {
-      "service": "nest-serverless-lambda-demo",
+      "service": "aws-node",
+      "frameworkVersion": "3",
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
       },
@@ -505,10 +1002,10 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "/home/prometheus/apps/gesttiona/lambda-gest/.build/.serverless/nest-serverless-lambda-demo.zip"
+    "artifact": "/home/prometheus/apps/gesttiona/lambda-gest/.serverless/aws-node.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/nest-serverless-lambda-demo/dev/1706763843893-2024-02-01T05:04:03.893Z",
-    "artifact": "nest-serverless-lambda-demo.zip"
+    "artifactDirectoryName": "serverless/aws-node/dev/1706836129393-2024-02-02T01:08:49.393Z",
+    "artifact": "aws-node.zip"
   }
 }

@@ -1,4 +1,0 @@
-declare enum CACHED_MODELS {
-    MARK_TYPE = "MARK_TYPE",
-    WORKER_DAY = "WORKER_DAY"
-}
